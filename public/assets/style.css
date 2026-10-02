@@ -1,0 +1,33 @@
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:#faf7f9;color:#222;line-height:1.5}
+header{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;padding:.6rem 1rem;background:#8e3b6b;color:#fff}
+header a,.link{color:#fff;text-decoration:none;margin-right:.8rem;background:none;border:0;font:inherit;cursor:pointer}
+nav{display:flex;flex-wrap:wrap;align-items:center}
+main{max-width:960px;margin:1rem auto;padding:0 1rem}
+.card{background:#fff;border:1px solid #e5d9e0;border-radius:8px;padding:1rem;margin:1rem 0}
+label{display:block;margin:.6rem 0;font-weight:600}
+input,select,textarea{display:block;width:100%;max-width:100%;padding:.5rem;border:1px solid #ccc;border-radius:6px;font:inherit}
+input[type=checkbox]{display:inline;width:auto}
+.filters{display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end}
+.filters label{margin:0}
+.btn{display:inline-block;padding:.5rem 1rem;border:0;border-radius:6px;background:#8e3b6b;color:#fff;font:inherit;cursor:pointer;text-decoration:none}
+.btn.ok{background:#2e7d32}.btn.warn{background:#ef8f00}.btn.bad{background:#c62828}
+.btn.small{padding:.2rem .6rem;font-size:.85rem}
+.actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+.inline{display:inline}
+.flash{padding:.6rem 1rem;border-radius:6px}.flash.ok{background:#e0f2e1}.flash.err{background:#fde0e0}
+.meta{color:#777;font-size:.9rem;font-weight:400}
+.badge{background:#8e3b6b;color:#fff;border-radius:4px;padding:0 .4rem}
+.big{font-size:1.3rem}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;background:#fff}
+th,td{border:1px solid #e5d9e0;padding:.4rem .6rem;text-align:left}
+.matrix td,.matrix thead th,.matrix tfoot td{text-align:center}
+thead th,tfoot th,tfoot td{background:#f3e6ee}
+.nowrap{white-space:nowrap}
+.md img{max-width:100%;height:auto}
+.md table{width:auto}
+.md pre{background:#f4f4f4;padding:.6rem;overflow-x:auto}
+.preview{border-left:3px solid #e5d9e0;padding-left:.8rem}
+.pager{display:flex;gap:1rem;align-items:center;justify-content:center;margin:1rem 0}
+@media(max-width:600px){header{flex-direction:column;align-items:flex-start}}
