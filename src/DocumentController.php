@@ -16,7 +16,14 @@ final class DocumentController extends Controller
             $this->flash('Document introuvable.', 'err');
             $this->redirect('index.php?page=documents');
         }
-        $this->render('documents/show', ['title' => $document['titre'], 'document' => $document]);
+        $has = static fn (string $k): bool => $document[$k] !== null && $document[$k] !== '';
+        $vue = ($_GET['vue'] ?? '') === 'cours' ? 'cours' : 'resume';
+        // Sans choix explicite, on affiche le contenu disponible.
+        if (!isset($_GET['vue']) && !$has('resume') && $has('cours')) {
+            $vue = 'cours';
+        }
+        $chapitres = $vue === 'cours' && $has('cours') ? Markdown::chapters($document['cours']) : [];
+        $this->render('documents/show', ['title' => $document['titre'], 'document' => $document, 'vue' => $vue, 'chapitres' => $chapitres]);
     }
 
     public function create(): void

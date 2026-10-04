@@ -12,9 +12,9 @@ final class Repository
     public function documents(): array
     {
         return $this->db->query(
-            'SELECT d.id, d.titre, d.created_at, (d.resume IS NOT NULL) AS a_resume, COUNT(f.id) AS nb_fiches
+            'SELECT d.id, d.titre, d.created_at, (d.resume IS NOT NULL) AS a_resume, (d.cours IS NOT NULL) AS a_cours, COUNT(f.id) AS nb_fiches
              FROM documents d LEFT JOIN fiches f ON f.document_id = d.id
-             GROUP BY d.id, d.titre, d.created_at, d.resume ORDER BY d.titre'
+             GROUP BY d.id, d.titre, d.created_at, d.resume, d.cours ORDER BY d.titre'
         )->fetchAll();
     }
 
@@ -28,6 +28,11 @@ final class Repository
     public function setDocumentResume(int $id, string $resume): void
     {
         $this->db->prepare('UPDATE documents SET resume = ? WHERE id = ?')->execute([$resume, $id]);
+    }
+
+    public function setDocumentCours(int $id, string $cours): void
+    {
+        $this->db->prepare('UPDATE documents SET cours = ? WHERE id = ?')->execute([$cours, $id]);
     }
 
     public function documentByTitle(string $titre): ?array

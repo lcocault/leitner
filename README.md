@@ -11,7 +11,7 @@ Application web PHP 8.2+ / PostgreSQL pour réviser (CAP esthétique) avec le sy
 
 ## Installation
 1. `psql -f sql/schema.sql` sur la base PostgreSQL (nouvelle installation).
-   Base existante : appliquer dans l'ordre les scripts de `sql/migrations/` (ex. `psql -f sql/migrations/001_add_document_resume.sql`).
+   Base existante : appliquer dans l'ordre les scripts de `sql/migrations/` (`001_add_document_resume.sql`, puis `002_add_document_cours.sql`).
 2. Définir les variables (voir `.env.example`) : `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PASSWORD_HASH`
    (hash : `php -r 'echo password_hash("motdepasse", PASSWORD_DEFAULT);'`).
 3. Pointer le site (AlwaysData) sur le dossier `public/`.

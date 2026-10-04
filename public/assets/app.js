@@ -66,24 +66,76 @@
         if (mine) { return; }
         var target = document.querySelector(btn.dataset.speak);
         var parts = [];
+        if (btn.dataset.speakTitle) { parts.push(end(btn.dataset.speakTitle)); }
         blocks(target).forEach(function (b) { parts = parts.concat(sentences(b)); });
         if (!parts.length) { return; }
         speaking = btn;
         btn.textContent = '⏹ Arrêter';
         var voice = frVoice();
-        parts.forEach(function (p, i) {
-          var u = new SpeechSynthesisUtterance(p.trim());
+        // Un énoncé à la fois : une longue file d'attente (cours complet) est mal gérée par certains navigateurs.
+        var next = function (i) {
+          if (speaking !== btn) { return; }
+          if (i >= parts.length) {
+            btn.textContent = label;
+            speaking = null;
+            btn.dispatchEvent(new Event('speakend'));
+            return;
+          }
+          var u = new SpeechSynthesisUtterance(parts[i].trim());
           u.lang = 'fr-FR';
           if (voice) { u.voice = voice; }
-          if (i === parts.length - 1) {
-            u.onend = function () { if (speaking === btn) { btn.textContent = label; speaking = null; } };
-          }
+          u.onend = function () { next(i + 1); };
+          u.onerror = function (e) { if (e.error !== 'canceled' && e.error !== 'interrupted') { next(i + 1); } };
           synth.speak(u);
-        });
+        };
+        next(0);
       });
     });
     synth.getVoices();
     window.addEventListener('pagehide', function () { synth.cancel(); });
+    window.addEventListener('hashchange', stop);
+  }
+  // Cours chapitré : sommaire, un chapitre affiché à la fois, enchaînement automatique en lecture vocale.
+  var cours = document.getElementById('cours');
+  if (cours) {
+    var sommaire = document.getElementById('sommaire');
+    var chapitres = Array.prototype.slice.call(cours.querySelectorAll('.chapitre'));
+    var cle = 'leitner-chapitre-' + cours.dataset.document;
+    var memo = function (n) { try { if (n) { localStorage.setItem(cle, n); } return +localStorage.getItem(cle) || 0; } catch (e) { return 0; } };
+    // n = numéro du chapitre à afficher (1…), 0 = sommaire
+    var afficher = function (n) {
+      sommaire.hidden = n > 0;
+      chapitres.forEach(function (c, i) { c.hidden = i !== n - 1; });
+      if (n > 0) { memo(n); }
+      var dernier = memo(0), reprendre = document.getElementById('reprendre');
+      if (dernier > 0 && dernier <= chapitres.length) {
+        reprendre.innerHTML = '';
+        var a = document.createElement('a');
+        a.href = '#chapitre-' + dernier;
+        a.className = 'btn small';
+        a.textContent = 'Reprendre au chapitre ' + dernier + ' : ' + chapitres[dernier - 1].dataset.titre;
+        reprendre.appendChild(a);
+        reprendre.hidden = false;
+      }
+      window.scrollTo(0, 0);
+    };
+    var courant = function () {
+      var m = /^#chapitre-(\d+)$/.exec(location.hash);
+      return m && +m[1] >= 1 && +m[1] <= chapitres.length ? +m[1] : 0;
+    };
+    window.addEventListener('hashchange', function () { afficher(courant()); });
+    // Fin de la lecture d'un chapitre : passage au suivant, dont la lecture démarre aussitôt.
+    chapitres.forEach(function (c, i) {
+      var btn = c.querySelector('button[data-speak]'), suivant = chapitres[i + 1];
+      if (!btn || !suivant) { return; }
+      btn.addEventListener('speakend', function () {
+        if (courant() !== i + 1) { return; }
+        history.pushState(null, '', '#chapitre-' + (i + 2));
+        afficher(i + 2);
+        suivant.querySelector('button[data-speak]').click();
+      });
+    });
+    afficher(courant());
   }
   var meta = document.querySelector('meta[name=csrf]');
   document.querySelectorAll('textarea[data-preview]').forEach(function (ta) {

@@ -1,7 +1,7 @@
 <h1>Import JSON</h1>
 <?php if ($report): ?>
   <div class="card">
-    <p class="flash <?= $report['imported'] + ($report['resumes'] ?? 0) > 0 ? 'ok' : 'err' ?>"><?= (int) $report['imported'] ?> fiche(s) importée(s), <?= (int) ($report['resumes'] ?? 0) ?> résumé(s) enregistré(s), <?= count($report['errors']) ?> erreur(s).</p>
+    <p class="flash <?= $report['imported'] + ($report['resumes'] ?? 0) + ($report['cours'] ?? 0) > 0 ? 'ok' : 'err' ?>"><?= (int) $report['imported'] ?> fiche(s) importée(s), <?= (int) ($report['resumes'] ?? 0) ?> résumé(s) et <?= (int) ($report['cours'] ?? 0) ?> cours enregistré(s), <?= count($report['errors']) ?> erreur(s).</p>
     <?php if ($report['errors']): ?><ul><?php foreach ($report['errors'] as $er): ?><li><?= e($er) ?></li><?php endforeach; ?></ul><?php endif; ?>
   </div>
 <?php endif; ?>
@@ -13,7 +13,7 @@
 <div class="card">
   <h2>Format attendu</h2>
   <p>Un tableau d'objets. Champs requis : <code>document</code>, <code>question</code>, <code>reponse</code>. Optionnels : <code>niveau_maturite</code> (M1–M5, défaut M1), <code>date_presentation_min</code> (AAAA-MM-JJ, défaut aujourd'hui), <code>paragraphe_reference</code>. Le document est créé s'il n'existe pas.</p>
-  <p>Résumé d'un document : ajoutez le champ <code>resume</code> (Markdown). Un objet qui ne contient que <code>document</code> et <code>resume</code> enregistre le résumé sans créer de fiche ; réimporter un résumé remplace le précédent.</p>
+  <p>Résumé et cours complet d'un document : ajoutez les champs <code>resume</code> et/ou <code>cours</code> (Markdown). Un objet sans <code>question</code> ni <code>reponse</code> enregistre ces contenus sans créer de fiche ; les réimporter remplace les précédents.</p>
   <pre><code>[
   {
     "document": "Titre du document de référence",
@@ -25,7 +25,8 @@
   },
   {
     "document": "Titre du document de référence",
-    "resume": "... (markdown)"
+    "resume": "... (markdown)",
+    "cours": "... (markdown)"
   }
 ]</code></pre>
 </div>

@@ -10,7 +10,7 @@ final class Importer
     {
     }
 
-    /** @return array{imported:int, resumes?:int, errors:string[]} */
+    /** @return array{imported:int, resumes?:int, cours?:int, errors:string[]} */
     public function import(string $json): array
     {
         $data = json_decode($json, true);
@@ -22,12 +22,15 @@ final class Importer
         }
         $imported = 0;
         $resumes = 0;
+        $cours = 0;
         $errors = [];
         foreach ($data as $i => $row) {
             $n = $i + 1;
-            $resume = is_array($row) && isset($row['resume']) && is_string($row['resume']) ? trim($row['resume']) : '';
-            // Objet {document, resume} sans question ni réponse : résumé seul, aucune fiche créée.
-            $resumeOnly = $resume !== '' && !isset($row['question']) && !isset($row['reponse']);
+            $text = static fn (string $k): string => is_array($row) && isset($row[$k]) && is_string($row[$k]) ? trim($row[$k]) : '';
+            $resume = $text('resume');
+            $texteCours = $text('cours');
+            // Objet {document, resume et/ou cours} sans question ni réponse : contenu du document seul, aucune fiche créée.
+            $resumeOnly = ($resume !== '' || $texteCours !== '') && !isset($row['question']) && !isset($row['reponse']);
             if ($resumeOnly) {
                 $titre = isset($row['document']) && is_string($row['document']) ? trim($row['document']) : '';
                 $fiche = null;
@@ -36,7 +39,7 @@ final class Importer
                 [$fiche, $titre, $errs] = $this->validate($row);
             }
             if ($errs) {
-                $errors[] = ($resumeOnly ? 'Résumé' : 'Fiche') . " #$n : " . implode(' ; ', $errs);
+                $errors[] = ($resumeOnly ? 'Document' : 'Fiche') . " #$n : " . implode(' ; ', $errs);
                 continue;
             }
             try {
@@ -50,11 +53,15 @@ final class Importer
                     $this->repo->setDocumentResume($documentId, $resume);
                     $resumes++;
                 }
+                if ($texteCours !== '') {
+                    $this->repo->setDocumentCours($documentId, $texteCours);
+                    $cours++;
+                }
             } catch (Throwable $e) {
-                $errors[] = ($resumeOnly ? 'Résumé' : 'Fiche') . " #$n : erreur d'enregistrement.";
+                $errors[] = ($resumeOnly ? 'Document' : 'Fiche') . " #$n : erreur d'enregistrement.";
             }
         }
-        return ['imported' => $imported, 'resumes' => $resumes, 'errors' => $errors];
+        return ['imported' => $imported, 'resumes' => $resumes, 'cours' => $cours, 'errors' => $errors];
     }
 
     public function validate(mixed $row): array

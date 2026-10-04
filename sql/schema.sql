@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS documents (
     id          SERIAL PRIMARY KEY,
     titre       TEXT NOT NULL UNIQUE,
     resume      TEXT,
+    cours       TEXT,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

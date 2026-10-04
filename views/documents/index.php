@@ -6,11 +6,16 @@
 </form>
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Titre</th><th>Résumé</th><th>Fiches</th><th></th></tr></thead>
+  <thead><tr><th>Titre</th><th>Lecture</th><th>Fiches</th><th></th></tr></thead>
   <tbody>
   <?php foreach ($documents as $d): ?>
     <tr><td><?= e($d['titre']) ?></td>
-      <td><?php if ($d['a_resume']): ?><a href="index.php?page=documents&action=show&id=<?= (int) $d['id'] ?>">Lire</a><?php else: ?>—<?php endif; ?></td>
+      <td class="nowrap">
+        <?php if ($d['a_resume']): ?><a href="index.php?page=documents&action=show&id=<?= (int) $d['id'] ?>&vue=resume">Résumé</a><?php endif; ?>
+        <?php if ($d['a_resume'] && $d['a_cours']): ?> · <?php endif; ?>
+        <?php if ($d['a_cours']): ?><a href="index.php?page=documents&action=show&id=<?= (int) $d['id'] ?>&vue=cours">Cours</a><?php endif; ?>
+        <?php if (!$d['a_resume'] && !$d['a_cours']): ?>—<?php endif; ?>
+      </td>
       <td><?= (int) $d['nb_fiches'] ?></td>
       <td>
         <form method="post" action="index.php?page=documents&action=delete" class="inline" onsubmit="return confirm('Supprimer ce document ?')">

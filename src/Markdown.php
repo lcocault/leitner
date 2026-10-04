@@ -87,6 +87,43 @@ final class Markdown
         return implode("\n", $out);
     }
 
+    /**
+     * Découpe un texte en chapitres sur les titres de niveau 2 et 3 (« ## » et « ### »).
+     * Un chapitre de niveau 3 est intitulé « titre de niveau 2 – titre de niveau 3 ».
+     * Le texte placé avant le premier titre forme un chapitre « Introduction » ; un titre sans contenu est ignoré.
+     *
+     * @return list<array{titre:string, texte:string}>
+     */
+    public static function chapters(string $text): array
+    {
+        $chapters = [];
+        $titre = null;
+        $parent = null;
+        $buf = [];
+        $flush = static function () use (&$chapters, &$titre, &$buf): void {
+            $body = trim(implode("\n", $buf));
+            if ($body !== '') {
+                $chapters[] = ['titre' => $titre ?? 'Introduction', 'texte' => $body];
+            }
+            $buf = [];
+        };
+        foreach (explode("\n", str_replace(["\r\n", "\r"], "\n", $text)) as $line) {
+            if (preg_match('/^(##|###)\s+(.*)$/', $line, $m)) {
+                $flush();
+                if ($m[1] === '##') {
+                    $parent = trim($m[2]);
+                    $titre = $parent;
+                } else {
+                    $titre = ($parent !== null ? $parent . ' – ' : '') . trim($m[2]);
+                }
+            } else {
+                $buf[] = $line;
+            }
+        }
+        $flush();
+        return $chapters;
+    }
+
     private static function isTableRow(string $l): bool
     {
         return str_contains($l, '|') && trim($l) !== '';

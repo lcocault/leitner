@@ -14,6 +14,11 @@ input[type=checkbox]{display:inline;width:auto}
 .btn.ok{background:#2e7d32}.btn.warn{background:#ef8f00}.btn.bad{background:#c62828}
 .btn.small{padding:.2rem .6rem;font-size:.85rem}
 .btn.speak{font-weight:400;vertical-align:middle}
+.tabs{display:flex;gap:.4rem;margin:1rem 0 -1rem}
+.tab{padding:.4rem 1rem;border:1px solid #e5d9e0;border-bottom:0;border-radius:8px 8px 0 0;background:#f3e6ee;color:#8e3b6b;text-decoration:none}
+.tab.on{background:#fff;font-weight:600}
+.chapnav{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e5d9e0}
+#sommaire li{margin:.3rem 0}
 .actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
 .inline{display:inline}
 .flash{padding:.6rem 1rem;border-radius:6px}.flash.ok{background:#e0f2e1}.flash.err{background:#fde0e0}
