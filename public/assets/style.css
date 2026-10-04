@@ -13,6 +13,7 @@ input[type=checkbox]{display:inline;width:auto}
 .btn{display:inline-block;padding:.5rem 1rem;border:0;border-radius:6px;background:#8e3b6b;color:#fff;font:inherit;cursor:pointer;text-decoration:none}
 .btn.ok{background:#2e7d32}.btn.warn{background:#ef8f00}.btn.bad{background:#c62828}
 .btn.small{padding:.2rem .6rem;font-size:.85rem}
+.btn.speak{font-weight:400;vertical-align:middle}
 .actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
 .inline{display:inline}
 .flash{padding:.6rem 1rem;border-radius:6px}.flash.ok{background:#e0f2e1}.flash.err{background:#fde0e0}

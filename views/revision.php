@@ -23,12 +23,12 @@
 <?php else: ?>
   <div class="card">
     <p class="meta"><?= e($fiche['document_titre']) ?> · niveau <span class="badge"><?= e($fiche['niveau_maturite']) ?></span></p>
-    <h2>Question</h2>
-    <div class="md"><?= Markdown::render($fiche['question']) ?></div>
+    <h2>Question <button class="btn small speak" type="button" data-speak="#question" hidden>🔊 Écouter</button></h2>
+    <div class="md" id="question"><?= Markdown::render($fiche['question']) ?></div>
     <button class="btn" id="show-answer" type="button">Afficher la réponse</button>
     <div id="answer" hidden>
-      <h2>Réponse</h2>
-      <div class="md"><?= Markdown::render($fiche['reponse']) ?></div>
+      <h2>Réponse <button class="btn small speak" type="button" data-speak="#reponse" hidden>🔊 Écouter</button></h2>
+      <div class="md" id="reponse"><?= Markdown::render($fiche['reponse']) ?></div>
       <?php if ($fiche['paragraphe_reference']): ?><p class="meta">Réf. : <?= e($fiche['paragraphe_reference']) ?></p><?php endif; ?>
       <p class="meta"><a href="index.php?page=documents&action=show&id=<?= (int) $fiche['document_id'] ?>" target="_blank" rel="noopener">Résumé du document</a></p>
       <form method="post" action="index.php?page=revision&action=answer" class="actions">

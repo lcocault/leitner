@@ -3,7 +3,8 @@
 <div class="card">
   <h2>Résumé</h2>
   <?php if ($document['resume'] !== null && $document['resume'] !== ''): ?>
-    <div class="md"><?= Markdown::render($document['resume']) ?></div>
+    <button class="btn small speak" type="button" data-speak="#resume" hidden>🔊 Écouter</button>
+    <div class="md" id="resume"><?= Markdown::render($document['resume']) ?></div>
   <?php else: ?>
     <p>Aucun résumé pour ce document. Vous pouvez en <a href="index.php?page=import">importer un</a>.</p>
   <?php endif; ?>
