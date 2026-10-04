@@ -10,7 +10,7 @@ final class Importer
     {
     }
 
-    /** @return array{imported:int, errors:string[]} */
+    /** @return array{imported:int, resumes?:int, errors:string[]} */
     public function import(string $json): array
     {
         $data = json_decode($json, true);
@@ -21,23 +21,40 @@ final class Importer
             return ['imported' => 0, 'errors' => ['Trop de fiches (maximum ' . self::MAX_ROWS . ').']];
         }
         $imported = 0;
+        $resumes = 0;
         $errors = [];
         foreach ($data as $i => $row) {
             $n = $i + 1;
-            [$fiche, $titre, $errs] = $this->validate($row);
+            $resume = is_array($row) && isset($row['resume']) && is_string($row['resume']) ? trim($row['resume']) : '';
+            // Objet {document, resume} sans question ni réponse : résumé seul, aucune fiche créée.
+            $resumeOnly = $resume !== '' && !isset($row['question']) && !isset($row['reponse']);
+            if ($resumeOnly) {
+                $titre = isset($row['document']) && is_string($row['document']) ? trim($row['document']) : '';
+                $fiche = null;
+                $errs = $titre === '' || mb_strlen($titre) > 255 ? ['titre du document manquant ou trop long (255 max)'] : [];
+            } else {
+                [$fiche, $titre, $errs] = $this->validate($row);
+            }
             if ($errs) {
-                $errors[] = "Fiche #$n : " . implode(' ; ', $errs);
+                $errors[] = ($resumeOnly ? 'Résumé' : 'Fiche') . " #$n : " . implode(' ; ', $errs);
                 continue;
             }
             try {
-                $fiche['document_id'] = $this->repo->findOrCreateDocument($titre);
-                $this->repo->createFiche($fiche);
-                $imported++;
+                $documentId = $this->repo->findOrCreateDocument($titre);
+                if ($fiche !== null) {
+                    $fiche['document_id'] = $documentId;
+                    $this->repo->createFiche($fiche);
+                    $imported++;
+                }
+                if ($resume !== '') {
+                    $this->repo->setDocumentResume($documentId, $resume);
+                    $resumes++;
+                }
             } catch (Throwable $e) {
-                $errors[] = "Fiche #$n : erreur d'enregistrement.";
+                $errors[] = ($resumeOnly ? 'Résumé' : 'Fiche') . " #$n : erreur d'enregistrement.";
             }
         }
-        return ['imported' => $imported, 'errors' => $errors];
+        return ['imported' => $imported, 'resumes' => $resumes, 'errors' => $errors];
     }
 
     public function validate(mixed $row): array

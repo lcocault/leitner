@@ -8,6 +8,17 @@ final class DocumentController extends Controller
         $this->render('documents/index', ['title' => 'Documents', 'documents' => $this->repo->documents()]);
     }
 
+    public function show(): void
+    {
+        $id = $this->intOrNull($_GET['id'] ?? null);
+        $document = $id ? $this->repo->document($id) : null;
+        if (!$document) {
+            $this->flash('Document introuvable.', 'err');
+            $this->redirect('index.php?page=documents');
+        }
+        $this->render('documents/show', ['title' => $document['titre'], 'document' => $document]);
+    }
+
     public function create(): void
     {
         $this->requirePost();

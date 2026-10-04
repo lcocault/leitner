@@ -10,7 +10,7 @@ Application web PHP 8.2+ / PostgreSQL pour réviser (CAP esthétique) avec le sy
 - `config.php` / `.env.example` : configuration par variables d'environnement
 
 ## Installation
-1. `psql -f sql/schema.sql` sur la base PostgreSQL.
+1. `psql -f sql/schema.sql` sur la base PostgreSQL (à relancer après une mise à jour : le script est idempotent et applique les migrations).
 2. Définir les variables (voir `.env.example`) : `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PASSWORD_HASH`
    (hash : `php -r 'echo password_hash("motdepasse", PASSWORD_DEFAULT);'`).
 3. Pointer le site (AlwaysData) sur le dossier `public/`.

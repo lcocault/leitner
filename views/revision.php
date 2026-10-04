@@ -30,6 +30,7 @@
       <h2>Réponse</h2>
       <div class="md"><?= Markdown::render($fiche['reponse']) ?></div>
       <?php if ($fiche['paragraphe_reference']): ?><p class="meta">Réf. : <?= e($fiche['paragraphe_reference']) ?></p><?php endif; ?>
+      <p class="meta"><a href="index.php?page=documents&action=show&id=<?= (int) $fiche['document_id'] ?>" target="_blank" rel="noopener">Résumé du document</a></p>
       <form method="post" action="index.php?page=revision&action=answer" class="actions">
         <?= csrf_field() ?>
         <input type="hidden" name="fiche_id" value="<?= (int) $fiche['id'] ?>">

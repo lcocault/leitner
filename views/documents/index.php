@@ -6,10 +6,12 @@
 </form>
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Titre</th><th>Fiches</th><th></th></tr></thead>
+  <thead><tr><th>Titre</th><th>Résumé</th><th>Fiches</th><th></th></tr></thead>
   <tbody>
   <?php foreach ($documents as $d): ?>
-    <tr><td><?= e($d['titre']) ?></td><td><?= (int) $d['nb_fiches'] ?></td>
+    <tr><td><?= e($d['titre']) ?></td>
+      <td><?php if ($d['a_resume']): ?><a href="index.php?page=documents&action=show&id=<?= (int) $d['id'] ?>">Lire</a><?php else: ?>—<?php endif; ?></td>
+      <td><?= (int) $d['nb_fiches'] ?></td>
       <td>
         <form method="post" action="index.php?page=documents&action=delete" class="inline" onsubmit="return confirm('Supprimer ce document ?')">
           <?= csrf_field() ?><input type="hidden" name="id" value="<?= (int) $d['id'] ?>">

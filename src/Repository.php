@@ -12,10 +12,22 @@ final class Repository
     public function documents(): array
     {
         return $this->db->query(
-            'SELECT d.id, d.titre, d.created_at, COUNT(f.id) AS nb_fiches
+            'SELECT d.id, d.titre, d.created_at, (d.resume IS NOT NULL) AS a_resume, COUNT(f.id) AS nb_fiches
              FROM documents d LEFT JOIN fiches f ON f.document_id = d.id
-             GROUP BY d.id, d.titre, d.created_at ORDER BY d.titre'
+             GROUP BY d.id, d.titre, d.created_at, d.resume ORDER BY d.titre'
         )->fetchAll();
+    }
+
+    public function document(int $id): ?array
+    {
+        $s = $this->db->prepare('SELECT * FROM documents WHERE id = ?');
+        $s->execute([$id]);
+        return $s->fetch() ?: null;
+    }
+
+    public function setDocumentResume(int $id, string $resume): void
+    {
+        $this->db->prepare('UPDATE documents SET resume = ? WHERE id = ?')->execute([$resume, $id]);
     }
 
     public function documentByTitle(string $titre): ?array

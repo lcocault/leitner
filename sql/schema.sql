@@ -2,8 +2,11 @@
 CREATE TABLE IF NOT EXISTS documents (
     id          SERIAL PRIMARY KEY,
     titre       TEXT NOT NULL UNIQUE,
+    resume      TEXT,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- Migration des bases existantes (sans effet si la colonne existe déjà)
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS resume TEXT;
 
 CREATE TABLE IF NOT EXISTS fiches (
     id                      SERIAL PRIMARY KEY,
