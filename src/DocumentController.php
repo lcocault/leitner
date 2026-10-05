@@ -5,7 +5,19 @@ final class DocumentController extends Controller
 {
     public function index(): void
     {
-        $this->render('documents/index', ['title' => 'Documents', 'documents' => $this->repo->documents()]);
+        $documents = $this->repo->documents();
+        foreach ($documents as &$d) {
+            $d['audio_url'] = $this->audioUrl($d['titre']);
+        }
+        unset($d);
+        $this->render('documents/index', ['title' => 'Documents', 'documents' => $documents]);
+    }
+
+    /** Adresse du MP3 du cours : « <AUDIO_BASE_URL>/<titre du document>.mp3 », null si la racine n'est pas configurée. */
+    private function audioUrl(string $titre): ?string
+    {
+        $base = (string) ($this->config['audio_base_url'] ?? '');
+        return str_starts_with($base, 'https://') ? $base . '/' . rawurlencode($titre) . '.mp3' : null;
     }
 
     public function show(): void
@@ -23,7 +35,10 @@ final class DocumentController extends Controller
             $vue = 'cours';
         }
         $chapitres = $vue === 'cours' && $has('cours') ? Markdown::chapters($document['cours']) : [];
-        $this->render('documents/show', ['title' => $document['titre'], 'document' => $document, 'vue' => $vue, 'chapitres' => $chapitres]);
+        $this->render('documents/show', [
+            'title' => $document['titre'], 'document' => $document, 'vue' => $vue, 'chapitres' => $chapitres,
+            'audioUrl' => $this->audioUrl($document['titre']),
+        ]);
     }
 
     public function create(): void

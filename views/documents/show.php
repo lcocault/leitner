@@ -9,6 +9,13 @@ $nb = count($chapitres);
   <a class="tab <?= $vue === 'resume' ? 'on' : '' ?>" href="<?= e($url . 'resume') ?>">Résumé</a>
   <a class="tab <?= $vue === 'cours' ? 'on' : '' ?>" href="<?= e($url . 'cours') ?>">Cours complet</a>
 </p>
+<?php if ($vue === 'cours' && $audioUrl !== null): ?>
+  <div class="card" id="audio-cours" data-document="<?= (int) $document['id'] ?>">
+    <h2>Version audio du cours</h2>
+    <audio controls preload="none" src="<?= e($audioUrl) ?>"></audio>
+    <p class="meta" id="audio-erreur" hidden>Aucun fichier audio disponible pour ce document.</p>
+  </div>
+<?php endif; ?>
 <?php if ($texte === null || $texte === ''): ?>
   <div class="card">
     <p>Aucun <?= $vue === 'cours' ? 'cours complet' : 'résumé' ?> pour ce document. Vous pouvez en <a href="index.php?page=import">importer un</a>.</p>

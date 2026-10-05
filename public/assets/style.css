@@ -19,6 +19,7 @@ input[type=checkbox]{display:inline;width:auto}
 .tab.on{background:#fff;font-weight:600}
 .chapnav{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e5d9e0}
 #sommaire li{margin:.3rem 0}
+audio{display:block;width:100%}
 .actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
 .inline{display:inline}
 .flash{padding:.6rem 1rem;border-radius:6px}.flash.ok{background:#e0f2e1}.flash.err{background:#fde0e0}

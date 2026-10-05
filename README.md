@@ -15,5 +15,7 @@ Application web PHP 8.2+ / PostgreSQL pour réviser (CAP esthétique) avec le sy
 2. Définir les variables (voir `.env.example`) : `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PASSWORD_HASH`
    (hash : `php -r 'echo password_hash("motdepasse", PASSWORD_DEFAULT);'`).
 3. Pointer le site (AlwaysData) sur le dossier `public/`.
+4. Facultatif : `AUDIO_BASE_URL` = racine HTTPS (ex. bucket S3 public) des versions audio des cours. Le lecteur de la page
+   d'un document charge `<AUDIO_BASE_URL>/<titre du document>.mp3` (MP3 générés par `tools/cours_audio.py`).
 
 Test local : `php -S 127.0.0.1:8000 -t public`.

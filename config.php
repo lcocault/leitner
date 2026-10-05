@@ -43,5 +43,7 @@ return [
         'password' => $env('APP_PASSWORD', ''), // alternative en clair, déconseillée
     ],
     'timezone' => $env('APP_TIMEZONE', 'Europe/Paris'),
+    // Racine HTTPS des versions audio des cours : le fichier attendu est « <titre du document>.mp3 ».
+    'audio_base_url' => rtrim((string) $env('AUDIO_BASE_URL', ''), '/'),
     'per_page' => 20,
 ];

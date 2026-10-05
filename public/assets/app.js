@@ -64,6 +64,7 @@
         var mine = speaking === btn;
         stop();
         if (mine) { return; }
+        document.querySelectorAll('audio').forEach(function (a) { a.pause(); });
         var target = document.querySelector(btn.dataset.speak);
         var parts = [];
         if (btn.dataset.speakTitle) { parts.push(end(btn.dataset.speakTitle)); }
@@ -94,6 +95,27 @@
     synth.getVoices();
     window.addEventListener('pagehide', function () { synth.cancel(); });
     window.addEventListener('hashchange', stop);
+    document.querySelectorAll('audio').forEach(function (a) { a.addEventListener('play', stop); });
+  }
+  // Version audio du cours : reprise à la dernière position écoutée, message si le fichier est absent.
+  var bloc = document.getElementById('audio-cours');
+  if (bloc) {
+    var audio = bloc.querySelector('audio');
+    var clePos = 'leitner-audio-' + bloc.dataset.document, dernierePos = 0;
+    var lire = function () { try { return +localStorage.getItem(clePos) || 0; } catch (e) { return 0; } };
+    var ecrire = function (t) { try { localStorage.setItem(clePos, t); } catch (e) { /* stockage indisponible */ } };
+    audio.addEventListener('loadedmetadata', function () {
+      var t = lire();
+      if (t > 5 && t < audio.duration - 5) { audio.currentTime = t; }
+    });
+    audio.addEventListener('timeupdate', function () {
+      if (Math.abs(audio.currentTime - dernierePos) >= 5) { dernierePos = audio.currentTime; ecrire(Math.floor(dernierePos)); }
+    });
+    audio.addEventListener('ended', function () { ecrire(0); });
+    audio.addEventListener('error', function () {
+      audio.hidden = true;
+      document.getElementById('audio-erreur').hidden = false;
+    });
   }
   // Cours chapitré : sommaire, un chapitre affiché à la fois, enchaînement automatique en lecture vocale.
   var cours = document.getElementById('cours');
