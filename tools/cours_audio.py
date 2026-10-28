@@ -30,6 +30,7 @@ SIGLES = {
     'CI': 'cé i', 'UV': 'u vé', 'UVA': 'u vé a', 'UVB': 'u vé bé', 'UVC': 'u vé cé', 'BEP': 'bé eu pé',
     'NB': 'nota béné', 'pH': 'pé hache', 'OUI': 'oui', 'QUOI': 'quoi', 'QUI': 'qui', 'QUAND': 'quand',
     'POURQUOI': 'pourquoi', 'ON': 'on',
+    'RGPD': 'erre gé pé dé', 'AMM': 'a emme emme', 'CE': 'cé eu', 'NMF': 'enne emme effe',
 }
 REMPLACEMENTS = [
     (r'\bE/H/E\b', 'eau dans huile dans eau'), (r'\bH/E/H\b', 'huile dans eau dans huile'),
