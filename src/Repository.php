@@ -42,6 +42,15 @@ final class Repository
         return $s->fetch() ?: null;
     }
 
+    /** Documents dont le titre contient le texte donné (insensible à la casse). */
+    public function searchDocuments(string $q): array
+    {
+        $like = '%' . addcslashes($q, '\\%_') . '%';
+        $s = $this->db->prepare('SELECT * FROM documents WHERE titre ILIKE ? ORDER BY titre LIMIT 10');
+        $s->execute([$like]);
+        return $s->fetchAll();
+    }
+
     public function documentExists(int $id): bool
     {
         $s = $this->db->prepare('SELECT 1 FROM documents WHERE id = ?');

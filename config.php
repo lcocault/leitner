@@ -42,6 +42,8 @@ return [
         'password_hash' => $env('APP_PASSWORD_HASH', ''),
         'password' => $env('APP_PASSWORD', ''), // alternative en clair, déconseillée
     ],
+    // Serveur MCP (public/mcp.php) : jeton Bearer d'au moins 32 caractères ; vide = serveur désactivé.
+    'mcp' => ['token' => $env('MCP_TOKEN', '')],
     'timezone' => $env('APP_TIMEZONE', 'Europe/Paris'),
     // Racine HTTPS des versions audio des cours : le fichier attendu est « <titre du document>.mp3 ».
     'audio_base_url' => rtrim((string) $env('AUDIO_BASE_URL', ''), '/'),

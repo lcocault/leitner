@@ -5,6 +5,7 @@ Application web PHP 8.2+ / PostgreSQL pour réviser (CAP esthétique) avec le sy
 ## Structure
 - `public/` : point d'entrée (`index.php`) et assets — racine web
 - `src/` : classes (contrôleurs, `Repository` PDO, `Leitner` logique métier, `Markdown`, `Importer`, `Security`)
+- `public/mcp.php` + `src/McpServer.php` : serveur MCP (voir [Serveur MCP](#serveur-mcp))
 - `tools/cours_audio.py` : génération des MP3 des cours (voir [Audio](#audio))
 - `views/` : templates PHP
 - `sql/schema.sql` : création des tables
@@ -176,3 +177,36 @@ RÈGLES POUR LES FICHES
 AVANT DE RÉPONDRE, vérifie : JSON valide ; premier objet = contenu du document ; "document" identique partout ; chaque fiche a
 question, reponse, niveau_maturite, date_presentation_min ; aucun point du document n'est oublié ni inventé.
 ````
+
+## Serveur MCP
+
+`public/mcp.php` expose en **lecture seule** le résumé et le cours des documents à un LLM, via le protocole MCP (transport
+Streamable HTTP, sans dépendance).
+
+**Activation** : définir `MCP_TOKEN` (32 caractères minimum, ex. `php -r 'echo bin2hex(random_bytes(32));'`). Sans jeton, l'endpoint
+répond 404. Chaque requête doit porter `Authorization: Bearer <MCP_TOKEN>`. Le jeton donne accès à tous les cours : le transmettre
+uniquement en HTTPS et ne pas le versionner. Si l'en-tête `Authorization` n'arrive pas à PHP (401 malgré le bon jeton), ajouter dans
+`public/.htaccess` : `SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1`.
+
+| Outil | Rôle |
+|---|---|
+| `list_documents` | documents : id, titre, présence du résumé / du cours, nombre de fiches |
+| `get_resume` | résumé (Markdown) d'un document |
+| `list_chapters` | chapitres du cours (numéro, titre, taille) : mêmes chapitres que la page du document |
+| `get_chapter` | texte d'un chapitre, par numéro |
+| `get_cours` | cours complet |
+
+Les outils désignent le document par `id` ou `titre` (exact, ou partie non ambiguë du titre).
+
+**Connexion** (remplacer l'URL) :
+
+```bash
+claude mcp add --transport http leitner https://MONCOMPTE.alwaysdata.net/mcp.php --header "Authorization: Bearer <MCP_TOKEN>"
+```
+
+Test rapide :
+
+```bash
+curl -s https://MONCOMPTE.alwaysdata.net/mcp.php -H "Authorization: Bearer <MCP_TOKEN>" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_documents"}}'
+```
