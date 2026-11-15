@@ -7,7 +7,8 @@
 </form>
 <datalist id="liste-categories"><?php foreach ($categories as $c): ?><option value="<?= e($c) ?>"><?php endforeach; ?></datalist>
 <?php foreach (par_categorie($documents) as $nomCategorie => $docs): ?>
-<h2><?= e($nomCategorie) ?> <span class="meta">(<?= count($docs) ?>)</span></h2>
+<details class="categorie">
+<summary><?= e($nomCategorie) ?> <span class="meta">(<?= count($docs) ?>)</span></summary>
 <div class="table-wrap">
 <table>
   <thead><tr><th>Titre</th><th>Lecture</th><th>Audio</th><th>Fiches</th><th>Catégorie</th><th></th></tr></thead>
@@ -40,4 +41,5 @@
   </tbody>
 </table>
 </div>
+</details>
 <?php endforeach; ?>
