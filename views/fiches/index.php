@@ -4,7 +4,9 @@
   <input type="hidden" name="page" value="fiches">
   <label>Document
     <select name="document_id"><option value="">Tous</option>
-      <?php foreach ($documents as $d): ?><option value="<?= (int) $d['id'] ?>" <?= $doc === (int) $d['id'] ? 'selected' : '' ?>><?= e($d['titre']) ?></option><?php endforeach; ?>
+      <?php foreach (par_categorie($documents) as $nomCategorie => $docs): ?><optgroup label="<?= e($nomCategorie) ?>">
+        <?php foreach ($docs as $d): ?><option value="<?= (int) $d['id'] ?>" <?= $doc === (int) $d['id'] ? 'selected' : '' ?>><?= e($d['titre']) ?></option><?php endforeach; ?>
+      </optgroup><?php endforeach; ?>
     </select></label>
   <label>Niveau
     <select name="niveau"><option value="">Tous</option>

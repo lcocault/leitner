@@ -10,7 +10,7 @@ final class DocumentController extends Controller
             $d['audio_url'] = $this->audioUrl($d['titre']);
         }
         unset($d);
-        $this->render('documents/index', ['title' => 'Documents', 'documents' => $documents]);
+        $this->render('documents/index', ['title' => 'Documents', 'documents' => $documents, 'categories' => $this->repo->categories()]);
     }
 
     /** Adresse du MP3 du cours : « <AUDIO_BASE_URL>/<titre du document>.mp3 », null si la racine n'est pas configurée. */
@@ -45,13 +45,32 @@ final class DocumentController extends Controller
     {
         $this->requirePost();
         $titre = trim((string) ($_POST['titre'] ?? ''));
+        $categorie = trim((string) ($_POST['categorie'] ?? ''));
         if ($titre === '' || mb_strlen($titre) > 255) {
             $this->flash('Titre invalide.', 'err');
+        } elseif ($categorie === '' || mb_strlen($categorie) > 255) {
+            $this->flash('Catégorie requise (255 caractères max).', 'err');
         } elseif ($this->repo->documentByTitle($titre)) {
             $this->flash('Ce document existe déjà.', 'err');
         } else {
-            $this->repo->findOrCreateDocument($titre);
+            $this->repo->findOrCreateDocument($titre, $categorie);
             $this->flash('Document créé.');
+        }
+        $this->redirect('index.php?page=documents');
+    }
+
+    public function categorie(): void
+    {
+        $this->requirePost();
+        $id = $this->intOrNull($_POST['id'] ?? null);
+        $categorie = trim((string) ($_POST['categorie'] ?? ''));
+        if (!$id || !$this->repo->documentExists($id)) {
+            $this->flash('Document introuvable.', 'err');
+        } elseif (mb_strlen($categorie) > 255) {
+            $this->flash('Catégorie trop longue (255 caractères max).', 'err');
+        } else {
+            $this->repo->setDocumentCategorie($id, $categorie);
+            $this->flash($categorie === '' ? 'Document sans catégorie.' : 'Catégorie enregistrée.');
         }
         $this->redirect('index.php?page=documents');
     }

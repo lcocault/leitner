@@ -10,7 +10,12 @@ final class Importer
     {
     }
 
-    /** @return array{imported:int, resumes?:int, cours?:int, errors:string[]} */
+    /**
+     * Chaque objet peut porter un champ « categorie » (ex. « CAP Esthétique - Pole 1 ») : requis pour créer un document,
+     * facultatif ensuite (s'il est présent, il reclasse le document existant).
+     *
+     * @return array{imported:int, resumes?:int, cours?:int, errors:string[]}
+     */
     public function import(string $json): array
     {
         $data = json_decode($json, true);
@@ -29,6 +34,7 @@ final class Importer
             $text = static fn (string $k): string => is_array($row) && isset($row[$k]) && is_string($row[$k]) ? trim($row[$k]) : '';
             $resume = $text('resume');
             $texteCours = $text('cours');
+            $categorie = $text('categorie');
             // Objet {document, resume et/ou cours} sans question ni réponse : contenu du document seul, aucune fiche créée.
             $resumeOnly = ($resume !== '' || $texteCours !== '') && !isset($row['question']) && !isset($row['reponse']);
             if ($resumeOnly) {
@@ -38,12 +44,22 @@ final class Importer
             } else {
                 [$fiche, $titre, $errs] = $this->validate($row);
             }
+            $existant = $errs ? null : $this->repo->documentByTitle($titre);
+            if (mb_strlen($categorie) > 255) {
+                $errs[] = 'catégorie trop longue (255 max)';
+            } elseif (!$errs && $existant === null && $categorie === '') {
+                // Un nouveau document doit être classé : la catégorie est requise à sa création.
+                $errs[] = "catégorie requise pour créer le document « $titre » (champ categorie)";
+            }
             if ($errs) {
                 $errors[] = ($resumeOnly ? 'Document' : 'Fiche') . " #$n : " . implode(' ; ', $errs);
                 continue;
             }
             try {
-                $documentId = $this->repo->findOrCreateDocument($titre);
+                $documentId = $this->repo->findOrCreateDocument($titre, $categorie);
+                if ($existant !== null && $categorie !== '' && $existant['categorie'] !== $categorie) {
+                    $this->repo->setDocumentCategorie($documentId, $categorie);
+                }
                 if ($fiche !== null) {
                     $fiche['document_id'] = $documentId;
                     $this->repo->createFiche($fiche);

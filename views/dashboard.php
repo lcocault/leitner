@@ -4,7 +4,10 @@
 <table class="matrix">
   <thead><tr><th>Document</th><?php foreach (Leitner::LEVELS as $l): ?><th><?= e($l) ?></th><?php endforeach; ?><th>Total</th></tr></thead>
   <tbody>
-  <?php foreach ($rows as $r): ?>
+  <?php $courante = false; foreach ($rows as $r): ?>
+    <?php if ($courante !== ($r['categorie'] ?? '')): $courante = $r['categorie'] ?? ''; ?>
+      <tr class="categorie"><th colspan="<?= count(Leitner::LEVELS) + 2 ?>"><?= e($courante === '' ? 'Sans catégorie' : $courante) ?></th></tr>
+    <?php endif; ?>
     <tr><th><?= e($r['titre']) ?></th>
       <?php foreach (Leitner::LEVELS as $l): ?><td><?= (int) $r['levels'][$l] ?></td><?php endforeach; ?>
       <td><strong><?= (int) $r['total'] ?></strong></td></tr>

@@ -5,9 +5,13 @@
   <input type="hidden" name="id" value="<?= (int) $fiche['id'] ?>">
   <label>Document
     <select name="document_id"><option value="">— choisir —</option>
-      <?php foreach ($documents as $d): ?><option value="<?= (int) $d['id'] ?>" <?= (int) $fiche['document_id'] === (int) $d['id'] ? 'selected' : '' ?>><?= e($d['titre']) ?></option><?php endforeach; ?>
+      <?php foreach (par_categorie($documents) as $nomCategorie => $docs): ?><optgroup label="<?= e($nomCategorie) ?>">
+        <?php foreach ($docs as $d): ?><option value="<?= (int) $d['id'] ?>" <?= (int) $fiche['document_id'] === (int) $d['id'] ? 'selected' : '' ?>><?= e($d['titre']) ?></option><?php endforeach; ?>
+      </optgroup><?php endforeach; ?>
     </select></label>
   <label>…ou nouveau document <input name="nouveau_document" maxlength="255"></label>
+  <label>Catégorie du nouveau document <input name="nouvelle_categorie" list="liste-categories" maxlength="255"></label>
+  <datalist id="liste-categories"><?php foreach ($categories as $c): ?><option value="<?= e($c) ?>"><?php endforeach; ?></datalist>
   <label>Question (markdown) <textarea name="question" rows="4" required data-preview="#pq"><?= e($fiche['question']) ?></textarea></label>
   <div id="pq" class="md preview"></div>
   <label>Réponse (markdown, images et tableaux admis) <textarea name="reponse" rows="8" required data-preview="#pr"><?= e($fiche['reponse']) ?></textarea></label>

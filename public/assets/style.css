@@ -38,3 +38,4 @@ thead th,tfoot th,tfoot td{background:#f3e6ee}
 .preview{border-left:3px solid #e5d9e0;padding-left:.8rem}
 .pager{display:flex;gap:1rem;align-items:center;justify-content:center;margin:1rem 0}
 @media(max-width:600px){header{flex-direction:column;align-items:flex-start}}
+tr.categorie th{background:#f3e8ee;text-align:left}

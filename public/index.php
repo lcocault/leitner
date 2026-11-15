@@ -22,7 +22,7 @@ $routes = [
     'revision' => [RevisionController::class, ['index' => 'index', 'answer' => 'answer']],
     'dashboard' => [DashboardController::class, ['index' => 'index']],
     'fiches' => [FicheController::class, ['index' => 'index', 'form' => 'form', 'save' => 'save', 'delete' => 'delete', 'preview' => 'preview']],
-    'documents' => [DocumentController::class, ['index' => 'index', 'show' => 'show', 'create' => 'create', 'delete' => 'delete']],
+    'documents' => [DocumentController::class, ['index' => 'index', 'show' => 'show', 'create' => 'create', 'categorie' => 'categorie', 'delete' => 'delete']],
     'import' => [ImportController::class, ['index' => 'index']],
 ];
 

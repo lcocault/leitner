@@ -37,7 +37,7 @@ final class FicheController extends Controller
     {
         $this->render('fiches/form', [
             'title' => $fiche['id'] ? 'Modifier la fiche' : 'Nouvelle fiche',
-            'fiche' => $fiche, 'errors' => $errors, 'documents' => $this->repo->documents(),
+            'fiche' => $fiche, 'errors' => $errors, 'documents' => $this->repo->documents(), 'categories' => $this->repo->categories(),
         ]);
     }
 
@@ -57,10 +57,13 @@ final class FicheController extends Controller
         ];
         $newDoc = trim((string) ($_POST['nouveau_document'] ?? ''));
         if ($newDoc !== '') {
+            $newCat = trim((string) ($_POST['nouvelle_categorie'] ?? ''));
             if (mb_strlen($newDoc) > 255) {
                 $errors[] = 'Titre de document trop long.';
+            } elseif (!$this->repo->documentByTitle($newDoc) && ($newCat === '' || mb_strlen($newCat) > 255)) {
+                $errors[] = 'Catégorie requise (255 caractères max) pour créer un nouveau document.';
             } else {
-                $f['document_id'] = $this->repo->findOrCreateDocument($newDoc);
+                $f['document_id'] = $this->repo->findOrCreateDocument($newDoc, $newCat);
             }
         } elseif (!$f['document_id'] || !$this->repo->documentExists($f['document_id'])) {
             $errors[] = 'Choisissez un document ou saisissez-en un nouveau.';

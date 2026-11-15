@@ -4,8 +4,10 @@ CREATE TABLE IF NOT EXISTS documents (
     titre       TEXT NOT NULL UNIQUE,
     resume      TEXT,
     cours       TEXT,
+    categorie   TEXT,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_documents_categorie ON documents(categorie);
 
 CREATE TABLE IF NOT EXISTS fiches (
     id                      SERIAL PRIMARY KEY,

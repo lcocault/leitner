@@ -13,7 +13,8 @@ Application web PHP 8.2+ / PostgreSQL pour réviser (CAP esthétique) avec le sy
 
 ## Installation
 1. `psql -f sql/schema.sql` sur la base PostgreSQL (nouvelle installation).
-   Base existante : appliquer dans l'ordre les scripts de `sql/migrations/` (`001_add_document_resume.sql`, puis `002_add_document_cours.sql`).
+   Base existante : appliquer dans l'ordre les scripts de `sql/migrations/` (`001_add_document_resume.sql`, `002_add_document_cours.sql`, puis `003_add_document_categorie.sql`, qui ajoute la catégorie des documents et classe
+   les documents déjà importés par pôle ; voir [Catégories de documents](#catégories-de-documents)).
 2. Définir les variables (voir `.env.example`) : `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `APP_PASSWORD_HASH`
    (hash : `php -r 'echo password_hash("motdepasse", PASSWORD_DEFAULT);'`).
 3. Pointer le site (AlwaysData) sur le dossier `public/`.
@@ -48,6 +49,7 @@ Un **tableau JSON** (UTF-8) d'objets. Il y a deux sortes d'objets, qui peuvent �
 | Champ | Requis | Contenu |
 |---|---|---|
 | `document` | oui | titre du document de référence (255 caractères max). Le document est créé s'il n'existe pas |
+| `categorie` | non | catégorie du document ; **requise si cet objet crée le document** (voir [Catégories de documents](#catégories-de-documents)) |
 | `question` | oui | texte brut, une seule notion par fiche |
 | `reponse` | oui | Markdown (voir ci-dessous) |
 | `niveau_maturite` | non | `M1` à `M5` (défaut `M1`). Utiliser `M1` pour un nouveau contenu |
@@ -60,6 +62,7 @@ Il ne crée aucune fiche ; il enregistre (ou remplace) le résumé et/ou le cour
 | Champ | Requis | Contenu |
 |---|---|---|
 | `document` | oui | titre du document (255 caractères max) |
+| `categorie` | oui pour créer le document | catégorie du document (voir [Catégories de documents](#catégories-de-documents)) |
 | `resume` | non | Markdown, texte court de 1 à 3 paragraphes |
 | `cours` | non | Markdown, contenu complet du document |
 
@@ -69,6 +72,7 @@ Exemple :
 [
   {
     "document": "CAP - Pole 2 L'appareil unguéal",
+    "categorie": "CAP Esthétique - Pole 2",
     "resume": "**L'ongle**\n\nL'ongle est une plaque cornée … ",
     "cours": "## L'appareil unguéal : l'ongle\n\nL'ongle est …\n\n## A. Structure\n\n- La matrice …"
   },
@@ -82,6 +86,22 @@ Exemple :
   }
 ]
 ```
+
+### Catégories de documents
+Chaque document appartient à **une catégorie** (texte libre, 255 caractères max), qui regroupe les documents dans les pages
+**Documents**, **Progression**, **Fiches** et **Réviser** (filtre « Catégorie »). Les catégories utilisées aujourd'hui sont
+`CAP Esthétique - Pole 1`, `CAP Esthétique - Pole 2` et `CAP Esthétique - Pole 3`. Une catégorie n'a pas à être déclarée : elle existe dès
+qu'un document la porte, donc **le nom doit être écrit à l'identique** (casse, accents, espaces) pour que les documents se regroupent.
+
+- **Import** : le champ `categorie` est **requis lorsqu'un objet crée un nouveau document** (sinon l'objet est rejeté avec
+  `catégorie requise…`). Pour un document existant, il est facultatif ; s'il est présent, il **reclasse** le document. Le plus simple
+  est de le mettre dans l'objet « contenu du document », placé en premier dans le fichier.
+- **Interface** : la page **Documents** permet de choisir la catégorie à la création d'un document et de la modifier ensuite
+  (champ « Catégorie » de chaque ligne ; vide = sans catégorie). Créer un nouveau document depuis le formulaire d'une fiche demande aussi une catégorie.
+- **Migration des documents déjà importés** : `sql/migrations/003_add_document_categorie.sql` ajoute la colonne et classe les documents
+  existants (liste explicite des titres, d'après le pôle indiqué dans le titre ou le document). Elle est **sans danger si on la rejoue** : elle ne
+  modifie jamais un document qui a déjà une catégorie, et les documents absents de la liste restent « Sans catégorie ».
+  `psql -f sql/migrations/003_add_document_categorie.sql`.
 
 ### Règles et limites
 - **Le titre `document` fait la jointure** : il doit être **identique, caractère pour caractère**, dans tous les objets d'un même
@@ -116,7 +136,7 @@ toutes lettres dans le cours (« 20 mètres carrés », « 5 pour cent ») ; les
 (dictionnaire `SIGLES` à compléter si besoin).
 
 ### Prompt pour un LLM
-À coller dans un LLM en lui fournissant le PDF (ou son texte). Remplacer `<TITRE>` par le nom du PDF sans `.pdf` et `<DATE>` par la date
+À coller dans un LLM en lui fournissant le PDF (ou son texte). Remplacer `<TITRE>` par le nom du PDF sans `.pdf`, `<CATEGORIE>` par la catégorie du document (ex. `CAP Esthétique - Pole 1`) et `<DATE>` par la date
 du jour (`AAAA-MM-JJ`). Relire le résultat avant import : le LLM peut omettre ou déformer un point.
 
 ````text
@@ -129,6 +149,7 @@ Le fichier est un tableau JSON (UTF-8) contenant, dans cet ordre :
 1) UN objet « contenu du document » :
 {
   "document": "<TITRE>",
+  "categorie": "<CATEGORIE>",
   "resume": "<résumé en Markdown>",
   "cours": "<cours complet en Markdown>"
 }
@@ -145,6 +166,7 @@ Le fichier est un tableau JSON (UTF-8) contenant, dans cet ordre :
 
 RÈGLES GÉNÉRALES
 - Le champ "document" vaut exactement "<TITRE>" dans tous les objets (même casse, mêmes accents, mêmes espaces).
+- Le champ "categorie" vaut exactement "<CATEGORIE>" ; il n'est présent que dans le premier objet (contenu du document), pas dans les fiches.
 - Tout le contenu doit venir du document : n'invente rien, ne complète pas avec tes connaissances. Si un passage est illisible
   ou absent, ne le comble pas. Le texte est en français.
 - Dans le JSON, échappe correctement les guillemets (\") et écris les retours à la ligne \n. Aucune virgule finale.
@@ -174,7 +196,7 @@ RÈGLES POUR LES FICHES
 - "niveau_maturite" : toujours "M1". "date_presentation_min" : toujours "<DATE>".
 - "paragraphe_reference" : section d'origine (ex. "B. Les anomalies", "Protocole de soin"), jamais vide.
 
-AVANT DE RÉPONDRE, vérifie : JSON valide ; premier objet = contenu du document ; "document" identique partout ; chaque fiche a
+AVANT DE RÉPONDRE, vérifie : JSON valide ; premier objet = contenu du document avec "categorie" ; "document" identique partout ; chaque fiche a
 question, reponse, niveau_maturite, date_presentation_min ; aucun point du document n'est oublié ni inventé.
 ````
 

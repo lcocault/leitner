@@ -89,7 +89,7 @@ final class McpServer
         return [
             [
                 'name' => 'list_documents',
-                'description' => 'Liste les documents de cours avec leur identifiant, leur titre et la disponibilité du résumé et du cours.',
+                'description' => 'Liste les documents de cours avec leur identifiant, leur titre, leur catégorie (ex. « CAP Esthétique - Pole 1 ») et la disponibilité du résumé et du cours.',
                 'inputSchema' => ['type' => 'object', 'properties' => new stdClass()],
                 'annotations' => $ro,
             ],
@@ -148,6 +148,7 @@ final class McpServer
         $rows = array_map(static fn (array $d): array => [
             'id' => (int) $d['id'],
             'titre' => $d['titre'],
+            'categorie' => $d['categorie'],
             'resume' => (bool) $d['a_resume'],
             'cours' => (bool) $d['a_cours'],
             'nb_fiches' => (int) $d['nb_fiches'],

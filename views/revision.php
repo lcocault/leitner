@@ -1,11 +1,23 @@
 <h1>Réviser</h1>
 <form method="get" class="filters">
   <input type="hidden" name="page" value="revision">
+  <label>Catégorie
+    <select name="categorie">
+      <option value="">Toutes les catégories</option>
+      <?php foreach ($categories as $c): ?>
+        <option <?= $categorie === $c ? 'selected' : '' ?>><?= e($c) ?></option>
+      <?php endforeach; ?>
+    </select>
+  </label>
   <label>Document
     <select name="document_id">
       <option value="">Tous les documents</option>
-      <?php foreach ($documents as $d): ?>
-        <option value="<?= (int) $d['id'] ?>" <?= $docId === (int) $d['id'] ? 'selected' : '' ?>><?= e($d['titre']) ?></option>
+      <?php foreach (par_categorie($documents) as $nomCategorie => $docs): ?>
+        <optgroup label="<?= e($nomCategorie) ?>">
+        <?php foreach ($docs as $d): ?>
+          <option value="<?= (int) $d['id'] ?>" <?= $docId === (int) $d['id'] ? 'selected' : '' ?>><?= e($d['titre']) ?></option>
+        <?php endforeach; ?>
+        </optgroup>
       <?php endforeach; ?>
     </select>
   </label>
@@ -35,6 +47,7 @@
         <?= csrf_field() ?>
         <input type="hidden" name="fiche_id" value="<?= (int) $fiche['id'] ?>">
         <input type="hidden" name="document_id" value="<?= (int) $docId ?>">
+        <input type="hidden" name="categorie" value="<?= e($categorie ?? '') ?>">
         <button class="btn ok" name="resultat" value="correct">Correct</button>
         <button class="btn warn" name="resultat" value="incomplet">Incomplet</button>
         <button class="btn bad" name="resultat" value="incorrect">Incorrect</button>

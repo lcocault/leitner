@@ -13,6 +13,7 @@
 <div class="card">
   <h2>Format attendu</h2>
   <p>Un tableau d'objets. Champs requis : <code>document</code>, <code>question</code>, <code>reponse</code>. Optionnels : <code>niveau_maturite</code> (M1–M5, défaut M1), <code>date_presentation_min</code> (AAAA-MM-JJ, défaut aujourd'hui), <code>paragraphe_reference</code>. Le document est créé s'il n'existe pas.</p>
+  <p><strong>Catégorie</strong> : le champ <code>categorie</code> (ex. « CAP Esthétique - Pole 1 ») est <strong>requis lorsque l'objet crée un nouveau document</strong>. Il est facultatif pour un document existant, qu'il reclasse s'il est renseigné. Il suffit de le mettre dans l'objet « document » (celui qui porte <code>resume</code> / <code>cours</code>), à placer en premier dans le fichier.</p>
   <p>Résumé et cours complet d'un document : ajoutez les champs <code>resume</code> et/ou <code>cours</code> (Markdown). Un objet sans <code>question</code> ni <code>reponse</code> enregistre ces contenus sans créer de fiche ; les réimporter remplace les précédents.</p>
   <pre><code>[
   {
@@ -25,6 +26,7 @@
   },
   {
     "document": "Titre du document de référence",
+    "categorie": "CAP Esthétique - Pole 1",
     "resume": "... (markdown)",
     "cours": "... (markdown)"
   }
@@ -45,6 +47,7 @@ fiches de révision au format JSON strictement conforme au schéma suivant :
     "paragraphe_reference": "<paragraphe ou section du document source>"
   }
 ]
+Si le document est nouveau, ajoute d'abord un objet {"document": "<titre exact>", "categorie": "<catégorie, ex. CAP Esthétique - Pole 1>"}.
 Génère entre 10 et 30 fiches couvrant les points clés du document, une fiche par notion 
 distincte. Réponds uniquement avec le JSON, sans texte d'accompagnement.</textarea>
 </div>

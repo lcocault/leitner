@@ -9,7 +9,7 @@ final class DashboardController extends Controller
         $colTotals = array_fill_keys(Leitner::LEVELS, 0);
         foreach ($this->repo->matrix() as $r) {
             $id = $r['id'];
-            $rows[$id] ??= ['titre' => $r['titre'], 'levels' => array_fill_keys(Leitner::LEVELS, 0), 'total' => 0];
+            $rows[$id] ??= ['titre' => $r['titre'], 'categorie' => $r['categorie'], 'levels' => array_fill_keys(Leitner::LEVELS, 0), 'total' => 0];
             if ($r['niveau'] !== null) {
                 $rows[$id]['levels'][$r['niveau']] = (int) $r['nb'];
                 $rows[$id]['total'] += (int) $r['nb'];

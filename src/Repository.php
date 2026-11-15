@@ -12,10 +12,22 @@ final class Repository
     public function documents(): array
     {
         return $this->db->query(
-            'SELECT d.id, d.titre, d.created_at, (d.resume IS NOT NULL) AS a_resume, (d.cours IS NOT NULL) AS a_cours, COUNT(f.id) AS nb_fiches
+            'SELECT d.id, d.titre, d.categorie, d.created_at, (d.resume IS NOT NULL) AS a_resume, (d.cours IS NOT NULL) AS a_cours, COUNT(f.id) AS nb_fiches
              FROM documents d LEFT JOIN fiches f ON f.document_id = d.id
-             GROUP BY d.id, d.titre, d.created_at, d.resume, d.cours ORDER BY d.titre'
+             GROUP BY d.id, d.titre, d.categorie, d.created_at, d.resume, d.cours ORDER BY d.categorie NULLS LAST, d.titre'
         )->fetchAll();
+    }
+
+    /** Catégories existantes, par ordre alphabétique. */
+    public function categories(): array
+    {
+        return $this->db->query('SELECT DISTINCT categorie FROM documents WHERE categorie IS NOT NULL ORDER BY categorie')->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /** Catégorie du document ; null ou chaîne vide pour le laisser sans catégorie. */
+    public function setDocumentCategorie(int $id, ?string $categorie): void
+    {
+        $this->db->prepare('UPDATE documents SET categorie = ? WHERE id = ?')->execute([$categorie === '' ? null : $categorie, $id]);
     }
 
     public function document(int $id): ?array
@@ -58,14 +70,15 @@ final class Repository
         return (bool) $s->fetchColumn();
     }
 
-    public function findOrCreateDocument(string $titre): int
+    /** Retourne l'id du document ; s'il est créé, il reçoit la catégorie donnée (un document existant n'est pas modifié). */
+    public function findOrCreateDocument(string $titre, ?string $categorie = null): int
     {
         $d = $this->documentByTitle($titre);
         if ($d) {
             return (int) $d['id'];
         }
-        $s = $this->db->prepare('INSERT INTO documents (titre) VALUES (?) RETURNING id');
-        $s->execute([$titre]);
+        $s = $this->db->prepare('INSERT INTO documents (titre, categorie) VALUES (?, ?) RETURNING id');
+        $s->execute([$titre, $categorie === '' ? null : $categorie]);
         return (int) $s->fetchColumn();
     }
 
@@ -163,7 +176,7 @@ final class Repository
     }
 
     // ---- Révision
-    public function randomDue(string $today, ?int $doc): ?array
+    public function randomDue(string $today, ?int $doc, ?string $categorie = null): ?array
     {
         $sql = 'SELECT f.*, d.titre AS document_titre FROM fiches f JOIN documents d ON d.id = f.document_id
                 WHERE f.date_presentation_min <= ?';
@@ -172,18 +185,26 @@ final class Repository
             $sql .= ' AND f.document_id = ?';
             $p[] = $doc;
         }
+        if ($categorie !== null) {
+            $sql .= ' AND d.categorie = ?';
+            $p[] = $categorie;
+        }
         $s = $this->db->prepare($sql . ' ORDER BY RANDOM() LIMIT 1');
         $s->execute($p);
         return $s->fetch() ?: null;
     }
 
-    public function nextDueDate(string $today, ?int $doc): ?string
+    public function nextDueDate(string $today, ?int $doc, ?string $categorie = null): ?string
     {
-        $sql = 'SELECT MIN(date_presentation_min) FROM fiches WHERE date_presentation_min > ?';
+        $sql = 'SELECT MIN(f.date_presentation_min) FROM fiches f JOIN documents d ON d.id = f.document_id WHERE f.date_presentation_min > ?';
         $p = [$today];
         if ($doc) {
-            $sql .= ' AND document_id = ?';
+            $sql .= ' AND f.document_id = ?';
             $p[] = $doc;
+        }
+        if ($categorie !== null) {
+            $sql .= ' AND d.categorie = ?';
+            $p[] = $categorie;
         }
         $s = $this->db->prepare($sql);
         $s->execute($p);
@@ -210,9 +231,9 @@ final class Repository
     public function matrix(): array
     {
         return $this->db->query(
-            'SELECT d.id, d.titre, f.niveau_maturite AS niveau, COUNT(f.id) AS nb
+            'SELECT d.id, d.titre, d.categorie, f.niveau_maturite AS niveau, COUNT(f.id) AS nb
              FROM documents d LEFT JOIN fiches f ON f.document_id = d.id
-             GROUP BY d.id, d.titre, f.niveau_maturite ORDER BY d.titre'
+             GROUP BY d.id, d.titre, d.categorie, f.niveau_maturite ORDER BY d.categorie NULLS LAST, d.titre'
         )->fetchAll();
     }
 }
